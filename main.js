@@ -21,6 +21,11 @@ export const Element = (element) => {
     element,
     innerHTML: "_",
     innerText: "_",
+    appendChild: (child) => {
+      element.innerHTML
+        ? element.innerHTML.push(child.element)
+        : (element.innerHTML = [child.element]);
+    },
   });
 
   wo.watcher.addListener((event) => {
@@ -87,23 +92,20 @@ export const Element = (element) => {
     }
   }, "style");
 
-  console.log(wo.innerHTML);
+  wo.watcher.addListener((event) => {
+    if (event.operation == "get") {
+      let children = [];
+      for (let i of event.target.element.innerHTML) {
+        if (i.type == "html") children.push(Element(i));
+      }
+      event.target[event.key] = children;
+    }
+  }, "children");
 
-  wo.innerHTML = "<div>test</div>";
-  console.log(wo.innerHTML);
-
-  console.log(wo.innerText);
-  wo.innerText = "<div>hallo</div>";
-  console.log(wo.innerText);
-  wo.innerHTML = "test";
-  console.log(wo.innerText);
-
-  wo.style.backgroundColor = "red";
-  wo.style.color = "white";
-  console.log(wo.style.backgroundColor);
-  console.log(wo.element.attributes);
   return wo;
 };
+
+let doIt = true;
 
 const keyToStyleAttribute = (key) => {
   let result = "";
