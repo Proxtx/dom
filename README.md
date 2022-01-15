@@ -16,7 +16,8 @@ Element.innerHTML<br />
 Element.style.\*<br />
 Element.appendChild<br />
 Element.children<br />
-_Attributes_
+_Attributes_<br />
+Element.removeChild
 
 # Future Plans:
 

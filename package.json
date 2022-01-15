@@ -1,6 +1,6 @@
 {
   "name": "@proxtx/dom",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "simulates the html dom (proxtx/html)",
   "main": "main.js",
   "type": "module",

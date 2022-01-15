@@ -125,6 +125,18 @@ export const Element = (element) => {
         if (i.attribute == attribute) return true;
       return false;
     },
+    removeChild: (elem) => {
+      if (!element.innerHTML) return;
+      for (let i in element.innerHTML) {
+        elem.element;
+        // WTF if I don't write this ^^ this check returns false even tho it should return true which is really really weird.... I worked with proxy objects here but there is no trap for element
+        if (elem.element == element.innerHTML[i]) {
+          let e = element.innerHTML[i];
+          element.innerHTML.splice(i, 1);
+          return e;
+        }
+      }
+    },
   });
 
   wo.watcher.addListener((event) => {
