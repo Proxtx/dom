@@ -1,5 +1,5 @@
 {
-  "name": "dom",
+  "name": "@proxtx/dom",
   "version": "1.0.0",
   "description": "simulates the html dom (proxtx/html)",
   "main": "main.js",
@@ -19,6 +19,6 @@
   "homepage": "https://github.com/Proxtx/dom#readme",
   "dependencies": {
     "@proxtx/html": "^1.0.4",
-    "@proxtx/watcher": "^1.0.3"
+    "@proxtx/watcher": "^1.0.4"
   }
 }

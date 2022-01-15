@@ -2,7 +2,7 @@
 
 simulates the html dom (proxtx/html)
 
-# Currently wip
+# Done (Stopping Development for now because you can easily operate a dom with these methods and if you really need to do something this implementation isn't capable of you can edit the elementList yourself.)
 
 Dom.getElementById<br />
 Dom.getElementsByClassName<br />
@@ -16,6 +16,7 @@ Element.innerHTML<br />
 Element.style.\*<br />
 Element.appendChild<br />
 Element.children<br />
+_Attributes_
 
 # Future Plans:
 
