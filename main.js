@@ -2,8 +2,18 @@ import { watcher } from "@proxtx/watcher";
 import { stringify } from "@proxtx/html/string.js";
 import { parse } from "@proxtx/html";
 
+/**
+ * creates a watcher (proxtx/watcher) with dom methods and attributes (readme.md)
+ * @param {Array} elementList Result of parse (proxtx/html)
+ * @returns A watcher (proxtx/watcher) with dom methods and attributes (readme.md)
+ */
 export const Dom = (elementList) => {
   let wo = watcher({
+    /**
+     * Finds the element with the given id
+     * @param {String} id The id of the desired node
+     * @returns An Element with the desired id
+     */
     getElementById: (id) => {
       return Element(
         query(elementList, (elem) => {
@@ -16,6 +26,11 @@ export const Dom = (elementList) => {
         })
       );
     },
+    /**
+     * Finds all elements with the desired class name
+     * @param {String} className The class name your looking for
+     * @returns all elements with the desired class
+     */
     getElementsByClassName: (className) => {
       let elements = query(
         elementList,
@@ -35,10 +50,23 @@ export const Dom = (elementList) => {
 
       return elements;
     },
+    /**
+     * The body element
+     */
     body: "_",
+    /**
+     * Creates a html node
+     * @param {String} tag The html tag
+     * @returns An element with the html tag mentioned
+     */
     createElement: (tag) => {
       return Element({ type: "html", tag, innerHTML: [], attributes: [] });
     },
+    /**
+     * Creates a text node
+     * @param {String} text The text
+     * @returns An a tag with the desired text inside
+     */
     createTextNode: (text) => {
       return Element({
         type: "html",
@@ -79,6 +107,13 @@ export const Dom = (elementList) => {
   return wo;
 };
 
+/**
+ * Recursively queries through a html list
+ * @param {Array} list The html element list your querying
+ * @callback Boolean A callback that should return true if the elements matches the query
+ * @param {Boolean} all All elements or just one
+ * @returns An Element or multiple Elements (depending on the all param)
+ */
 export const query = (list, callback, all = false) => {
   let result = [];
   for (let i in list) {
@@ -98,17 +133,31 @@ export const query = (list, callback, all = false) => {
   return false;
 };
 
+/**
+ * Simulates a js dom element
+ * @param {Object} element A single Element returned by parse
+ * @returns A watcher (proxtx/watcher) with some methods and attributes of the jsDom element
+ */
 export const Element = (element) => {
   let wo = watcher({
     style: {},
     element,
     innerHTML: "_",
     innerText: "_",
+    /**
+     * Appends a child element
+     * @param {Element} child the child element
+     */
     appendChild: (child) => {
       element.innerHTML
         ? element.innerHTML.push(child.element)
         : (element.innerHTML = [child.element]);
     },
+    /**
+     * Sets an attribute of the element
+     * @param {String} attribute the attribute name
+     * @param {String} value The attribute value
+     */
     setAttribute: (attribute, value) => {
       for (let i in element.attributes) {
         if (element.attributes[i].attribute == attribute)
@@ -116,15 +165,30 @@ export const Element = (element) => {
       }
       element.attributes.push({ attribute, value });
     },
+    /**
+     * Finds the attribute and returns it's value
+     * @param {String} attribute The attribute you want the value of
+     * @returns The attribute value
+     */
     getAttribute: (attribute) => {
       for (let i of element.attributes)
         if (i.attribute == attribute) return i.value;
     },
+    /**
+     * Checks if an attribute exists
+     * @param {String} attribute The attribute
+     * @returns {Boolean}
+     */
     hasAttribute: (attribute) => {
       for (let i of element.attributes)
         if (i.attribute == attribute) return true;
       return false;
     },
+    /**
+     * Removes a child element
+     * @param {Element} elem The chid element
+     * @returns {Boolean}
+     */
     removeChild: (elem) => {
       if (!element.innerHTML) return;
       for (let i in element.innerHTML) {
@@ -220,6 +284,11 @@ export const Element = (element) => {
   return wo;
 };
 
+/**
+ * Transforms js key to css rule name
+ * @param {String} key The js key
+ * @returns the css rule name
+ */
 export const keyToStyleAttribute = (key) => {
   let result = "";
   for (let i of key)
@@ -228,9 +297,15 @@ export const keyToStyleAttribute = (key) => {
   return result;
 };
 
+/**
+ * transforms css rule name into js key
+ * @param {String} attribute the css rule name
+ * @returns js key
+ */
 export const styleAttributeToKey = (attribute) => {
   let result = "";
   for (let i = 0; i < attribute.length; i++)
     if (i != "-") result += attribute[++i].toUpperCase();
     else result += attribute[i];
+  return result;
 };
