@@ -8,99 +8,83 @@ import { parse } from "@proxtx/html";
  * @returns A watcher (proxtx/watcher) with dom methods and attributes (readme.md)
  */
 export const Dom = (elementList) => {
-  let wo = watcher({
-    /**
-     * Finds the element with the given id
-     * @param {String} id The id of the desired node
-     * @returns An Element with the desired id
-     */
-    getElementById: (id) => {
-      return Element(
-        query(elementList, (elem) => {
-          if (!elem.attributes) return;
-          for (let i of elem.attributes) {
-            if (i.attribute == "id" && i.value == id) {
-              return true;
-            }
-          }
-        })
-      );
-    },
-    /**
-     * Finds all elements with the desired class name
-     * @param {String} className The class name your looking for
-     * @returns all elements with the desired class
-     */
-    getElementsByClassName: (className) => {
-      let elements = query(
-        elementList,
-        (elem) => {
-          if (!elem.attributes) return;
-          for (let i of elem.attributes) {
-            if (i.attribute == "class" && i.value == className) {
-              return true;
-            }
-          }
-        },
-        true
-      );
-      for (let i in elements) {
-        elements[i] = Element(elements[i]);
+  let wo = Element({ type: "html", tag: "root", innerHTML: elementList }, null);
+  /**
+   * Finds the element with the given id
+   * @param {String} id The id of the desired node
+   * @returns An Element with the desired id
+   */
+  wo.getElementById = (id) => {
+    return query(wo, (elem) => {
+      if (!elem.attributes) return;
+      for (let i of elem.attributes) {
+        if (i.attribute == "id" && i.value == id) {
+          return true;
+        }
       }
-
-      return elements;
-    },
-    /**
-     * The body element
-     */
-    body: "_",
-    /**
-     * Creates a html node
-     * @param {String} tag The html tag
-     * @returns An element with the html tag mentioned
-     */
-    createElement: (tag) => {
-      return Element({ type: "html", tag, innerHTML: [], attributes: [] });
-    },
-    /**
-     * Creates a text node
-     * @param {String} text The text
-     * @returns An a tag with the desired text inside
-     */
-    createTextNode: (text) => {
-      return Element({
-        type: "html",
-        tag: "a",
-        innerHTML: [{ type: "text", text }],
-        attributes: [],
-      });
-    },
-    documentElement: "_",
-
-    elementList,
-  });
-
-  wo.watcher.addListener((event) => {
-    if (event.operation == "get") {
-      event.target[event.key] = Element(
-        query(event.target.elementList, (elem) => {
-          if (elem.type == "html" && elem.tag == "body") {
+    });
+  };
+  /**
+   * Finds all elements with the desired class name
+   * @param {String} className The class name your looking for
+   * @returns all elements with the desired class
+   */
+  wo.getElementsByClassName = (className) => {
+    let elements = query(
+      wo,
+      (elem) => {
+        if (!elem.attributes) return;
+        for (let i of elem.attributes) {
+          if (i.attribute == "class" && i.value == className) {
             return true;
           }
-        })
-      );
+        }
+      },
+      true
+    );
+
+    return elements;
+  };
+  /**
+   * The body element
+   */
+  wo.body = "_";
+  /**
+   * Creates a html node
+   * @param {String} tag The html tag
+   * @returns An element with the html tag mentioned
+   */
+  wo.createElement = (tag) => {
+    return Element({ type: "html", tag, innerHTML: [], attributes: [] });
+  };
+  /**
+   * Creates a text node
+   * @param {String} text The text
+   * @returns An a tag with the desired text inside
+   */
+  wo.createTextNode = (text) => {
+    let e = wo.createElement("a");
+    e.appendChild(Element({ type: "text", text }));
+    return e;
+  };
+  wo.documentElement = "_";
+  wo.watcher.addListener((event) => {
+    if (event.operation == "get") {
+      event.target[event.key] = query(wo, (elem) => {
+        if (elem.type == "html" && elem.tag == "body") {
+          return true;
+        }
+      });
     }
   }, "body");
 
   wo.watcher.addListener((event) => {
     if (event.operation == "get") {
-      event.target[event.key] = Element(
-        query(event.target.elementList, (elem) => {
-          if (elem.type == "html" && elem.tag == "html") {
-            return true;
-          }
-        })
-      );
+      event.target[event.key] = query(wo, (elem) => {
+        if (elem.type == "html" && elem.tag == "html") {
+          return true;
+        }
+      });
     }
   }, "documentElement");
 
@@ -114,36 +98,39 @@ export const Dom = (elementList) => {
  * @param {Boolean} all All elements or just one
  * @returns An Element or multiple Elements (depending on the all param)
  */
-export const query = (list, callback, all = false) => {
+export const query = (parent, callback, all = false) => {
   let result = [];
+  let list = parent.element.innerHTML;
   for (let i in list) {
     if (callback(list[i], i, list)) {
-      if (!all) return list[i];
-      else result.push(list[i]);
+      result.push(Element(list[i], parent));
     }
     if (list[i].innerHTML && list[i].innerHTML.length > 0) {
-      const res = query(list[i].innerHTML, callback, all);
+      const res = query(Element(list[i], parent), callback, all);
       if (res) {
-        if (!all) return res;
-        else result = result.concat(res);
+        result = result.concat(res);
       }
     }
+    if (result.length > 0) break;
   }
   if (all) return result;
+  else if (result[0]) return result[0];
   return false;
 };
 
 /**
  * Simulates a js dom element
  * @param {Object} element A single Element returned by parse
+ * @param {Element} parent The parent element watcher of this element
  * @returns A watcher (proxtx/watcher) with some methods and attributes of the jsDom element
  */
-export const Element = (element) => {
+export const Element = (element, parent) => {
   let wo = watcher({
     style: {},
     element,
     innerHTML: "_",
     innerText: "_",
+    parent,
     /**
      * Appends a child element
      * @param {Element} child the child element
@@ -152,6 +139,7 @@ export const Element = (element) => {
       element.innerHTML
         ? element.innerHTML.push(child.element)
         : (element.innerHTML = [child.element]);
+      child.parent = wo;
     },
     /**
      * Sets an attribute of the element
@@ -197,6 +185,7 @@ export const Element = (element) => {
         if (elem.element == element.innerHTML[i]) {
           let e = element.innerHTML[i];
           element.innerHTML.splice(i, 1);
+          e.parent = undefined;
           return e;
         }
       }
@@ -220,7 +209,7 @@ export const Element = (element) => {
       if (!event.target.innerHTML) return "";
       let resText = "";
       query(
-        event.target.element.innerHTML,
+        wo,
         (elem) => {
           elem.type == "text" && (resText += elem.text);
         },
@@ -275,7 +264,7 @@ export const Element = (element) => {
     if (event.operation == "get") {
       let children = [];
       for (let i of event.target.element.innerHTML) {
-        if (i.type == "html") children.push(Element(i));
+        if (i.type == "html") children.push(Element(i, wo));
       }
       event.target[event.key] = children;
     }
