@@ -64,7 +64,7 @@ export const Dom = (elementList) => {
    */
   wo.createTextNode = (text) => {
     let e = wo.createElement("a");
-    e.appendChild(Element({ type: "text", text }));
+    e.appendChild(Element({ type: "text", text: String(text) }));
     return e;
   };
   wo.documentElement = "_";
@@ -180,9 +180,11 @@ export const Element = (element, parent) => {
     removeChild: (elem) => {
       if (!element.innerHTML) return;
       for (let i in element.innerHTML) {
-        elem.element;
-        // WTF if I don't write this ^^ this check returns false even tho it should return true which is really really weird.... I worked with proxy objects here but there is no trap for element
-        if (elem.element == element.innerHTML[i]) {
+        if (
+          elem.element == element.innerHTML[i] ||
+          (elem.element.watcher &&
+            elem.element.watcher.obj == element.innerHTML[i])
+        ) {
           let e = element.innerHTML[i];
           element.innerHTML.splice(i, 1);
           e.parent = undefined;
