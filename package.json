@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/Proxtx/dom#readme",
   "dependencies": {
-    "@proxtx/html": "^1.0.5",
+    "@proxtx/html": "^1.0.8",
     "@proxtx/watcher": "^1.0.7"
   }
 }

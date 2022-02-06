@@ -192,6 +192,20 @@ export const Element = (element, parent) => {
         }
       }
     },
+    /**
+     * Clones the current node
+     * @param {Boolean} children Clone children
+     * @returns {Element} the new Element
+     */
+    cloneNode: (children) => {
+      let newElement = JSON.parse(
+        JSON.stringify(element, (key, value) => {
+          if (key != "watcher") return value;
+        })
+      );
+      if (!children) newElement.innerHTML = [];
+      return Element(newElement, null);
+    },
   });
 
   wo.watcher.addListener((event) => {
