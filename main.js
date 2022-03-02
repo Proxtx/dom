@@ -111,7 +111,7 @@ export const query = (parent, callback, all = false) => {
         result = result.concat(res);
       }
     }
-    if (result.length > 0) break;
+    if (result.length > 0 && !all) break;
   }
   if (all) return result;
   else if (result[0]) return result[0];
